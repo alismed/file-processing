@@ -1,16 +1,53 @@
 {
     "Version": "2012-10-17",
     "Statement": [
-      {
-        "Action": [
-          "dynamodb:PutItem",
-          "dynamodb:UpdateItem",
-          "dynamodb:GetItem",
-          "dynamodb:Scan",
-          "dynamodb:Query"
-        ],
-        "Resource": "*",
-        "Effect": "Allow"
-      }
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::${var.bucket_name}",
+                "arn:aws:s3:::${var.bucket_name}/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:Query"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "events:InvokeFunction",
+                "events:PutEvents"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "arn:aws:logs:*:*:*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloudtrail:LookupEvents",
+                "cloudtrail:GetTrailStatus",
+                "cloudtrail:DescribeTrails"
+            ],
+            "Resource": "*"
+        }
     ]
-  }
+}

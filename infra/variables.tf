@@ -57,4 +57,19 @@ variable "gsi_config" {
   default = {}
 }
 
+variable "function_name" {
+  description = "The name of the Lambda function"
+  type        = string
+}
+
+variable "event_rule_name" {
+  description = "The name of the EventBridge rule"
+  type        = string
+}
+
+variable "event_target_id" {
+  description = "The ID of the EventBridge target"
+  type        = string
+  default     = "ProcessS3Upload"
+}
 
