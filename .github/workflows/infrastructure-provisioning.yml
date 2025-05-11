@@ -1,0 +1,94 @@
+name: Create Infrastructure
+
+on:
+  pull_request:
+    types: [opened, reopened]
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          npm install -g figlet-cli
+          figlet --horizontal-layout full -f slant "Infrastructure Provisioning"
+  
+      - name: Check AWS Credentials
+        run: |
+          if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ] || [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
+            figlet --horizontal-layout full "Error: AWS credentials not found"
+            exit 1
+          fi
+
+      - name: Get Region from tfvars
+        run: |
+          export REGION=$(grep 'region' infra/terraform.tfvars | cut -d'"' -f2)
+          echo "Region: $REGION"
+          echo "REGION=$REGION" >> $GITHUB_ENV
+
+      - name: Set up AWS Cli
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.REGION }}
+
+      - name: Get Description from pull request
+        run: |
+          export DESCRIPTION=$(echo "${{ github.event.pull_request.body }}")
+          echo "Description: $DESCRIPTION"
+          echo "DESCRIPTION=$DESCRIPTION" >> $GITHUB_ENV
+
+      - name: Terraform Setup
+        run: |
+          if ! command -v terraform &> /dev/null; then
+            apt-get update
+            apt-get install -y unzip curl
+            curl -o terraform.zip https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip
+            unzip terraform.zip
+            mv terraform /usr/local/bin/
+          fi
+          terraform version
+      
+      - name: Get Destroy infra from tfvars
+        run: |
+          export DESTROY_INFRA=$(grep 'destroy_infra' infra/destroy.yaml | cut -d':' -f2 | tr -d '[:space:]')
+          echo "Destroy Infra: $DESTROY_INFRA"
+          echo "DESTROY_INFRA=$DESTROY_INFRA" >> $GITHUB_ENV
+
+      - name: Terraform Operations
+        run: |
+          cd infra
+          terraform init
+          echo "Destroy Infra: $DESTROY_INFRA"
+          if [ "process.env.DESTROY_INFRA" == "true" ]; then
+            figlet --horizontal-layout full "Infra will be destroyed"
+            terraform destroy -auto-approve
+          else
+            terraform apply -auto-approve || (figlet --horizontal-layout full "Error: Terraform Apply Failed" && exit 1)
+          fi
+
+      - name: Add comment to PR
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const action = "process.env.DESTROY_INFRA" === "true" ? "destruída" : "criada";
+            const msg = [
+              `Infra ${{ inputs.cluster_name }} foi ${action} com sucesso!`,
+            ].join('\n');
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              issue_number: context.issue.number,
+              repo: context.repo.repo,
+              body: msg
+            });
