@@ -38,7 +38,11 @@ func ProcessCSV(r io.Reader, putItemFunc func(Order) error) error {
         if err != nil {
             break // EOF
         }
-        order := Order{
+		if len(record) < 4 {
+			log.Printf("Row ignored because it has less than 4 columns: %+v", record)
+			continue
+		}
+		order := Order{
             Id:          record[0],
             Region:      record[1],
             Name:        record[2],
@@ -124,48 +128,6 @@ func handler(ctx context.Context, event json.RawMessage) (string, error) {
         return "", err
     }
 	return "Processing completed", nil
-	/*
-	r := csv.NewReader(bufio.NewReader(getObj.Body))
-	r.Comma = ';'
-	r.FieldsPerRecord = -1
-
-	_, err = r.Read()
-	if err != nil {
-		log.Printf("Failed to read CSV header: %v", err)
-		return "", err
-	}
-
-	for {
-		record, err := r.Read()
-		if err != nil {
-			break // EOF
-		}
-		order := Order{
-			Id:          record[0],
-			Region:      record[1],
-			Name:        record[2],
-			Description: record[3],
-		}
-		item := map[string]ddbTypes.AttributeValue{
-			"Id":          &ddbTypes.AttributeValueMemberS{Value: order.Id},
-			"Region":      &ddbTypes.AttributeValueMemberS{Value: order.Region},
-			"Name":        &ddbTypes.AttributeValueMemberS{Value: order.Name},
-			"Description": &ddbTypes.AttributeValueMemberS{Value: order.Description},
-		}
-		log.Printf("Item to insert: %+v", item)
-		log.Printf("Item to insert: %s, %s, %s, %s", order.Id, order.Region, order.Name, order.Description)
-		log.Printf("Table name: %s", os.Getenv("DYNAMODB_TABLE"))
-		_, err = ddbClient.PutItem(ctx, &dynamodb.PutItemInput{
-			TableName: aws.String(os.Getenv("DYNAMODB_TABLE")),
-			Item:      item,
-		})
-		
-		if err != nil {
-			log.Printf("Failed to put item in DynamoDB: %v", err)
-		}
-	}
-	return "Processamento concluído", nil
-	*/
 }
 
 func main() {

@@ -16,6 +16,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Run Go unit tests
+        run: |
+          cd app/src
+          go test -v
+
       - name: Install dependencies
         run: |
           npm install -g figlet-cli
