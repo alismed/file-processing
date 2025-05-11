@@ -19,12 +19,12 @@ jobs:
       - name: Install dependencies
         run: |
           npm install -g figlet-cli
-          figlet --horizontal-layout full -f slant "Infrastructure Provisioning"
+          figlet --horizontal-layout full -f Big "Infrastructure Provisioning"
   
       - name: Check AWS Credentials
         run: |
           if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ] || [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
-            figlet --horizontal-layout full "Error: AWS credentials not found"
+            figlet --horizontal-layout full -f Big "AWS credentials not found"
             exit 1
           fi
 
