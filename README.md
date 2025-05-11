@@ -1,15 +1,9 @@
-# 
+# File processing
 
-
-
-```shell
-cd app
-
-GOOS=linux GOARCH=amd64 go build -o target/file-processing src/main.go
-```
+Processing a file when this is uploaded in a bucket
 
 ## Prerequisites
-
+- Go >= 1.24
 - AWS CLI
 - Terraform
 - LocalStack
@@ -20,6 +14,17 @@ To use LocalStack on your local machine, add a profile in the aws cli settings: 
 
 ### Terraform State
 The S3 bucket pre-built is used to store the terraform state file. The bucket name is defined in the `terraform-state.tf` file.
+
+
+```shell
+cd app/src
+
+# Build
+GOOS=linux GOARCH=amd64 go build -o ../target/file-processing main.go
+
+# zip
+zip ../target/app.zip ../target/file-processing
+```
 
 ## Local Setup
 

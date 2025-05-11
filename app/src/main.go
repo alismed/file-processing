@@ -24,6 +24,7 @@ var (
 )
 
 func handler(ctx context.Context, event map[string]interface{}) (string, error) {
+	log.Printf("Event received: %+v", event)
 	// Log the raw event for debugging
 	rawEvent, _ := json.MarshalIndent(event, "", "  ")
 	log.Printf("Raw event received: %s", string(rawEvent))

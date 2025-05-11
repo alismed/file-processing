@@ -8,8 +8,8 @@
                 "s3:ListBucket"
             ],
             "Resource": [
-                "arn:aws:s3:::${var.bucket_name}",
-                "arn:aws:s3:::${var.bucket_name}/*"
+                "arn:aws:s3:::captureS3Upload",
+                "arn:aws:s3:::captureS3Upload/*"
             ]
         },
         {
@@ -26,28 +26,11 @@
         {
             "Effect": "Allow",
             "Action": [
-                "events:InvokeFunction",
-                "events:PutEvents"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
                 "logs:CreateLogGroup",
                 "logs:CreateLogStream",
                 "logs:PutLogEvents"
             ],
             "Resource": "arn:aws:logs:*:*:*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "cloudtrail:LookupEvents",
-                "cloudtrail:GetTrailStatus",
-                "cloudtrail:DescribeTrails"
-            ],
-            "Resource": "*"
         }
     ]
 }

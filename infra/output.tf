@@ -45,7 +45,7 @@ output "dynamodb_table_arn" {
 output "dynamodb_table_id" {
   value = aws_dynamodb_table.items.id
 }
-
+/*
 output "aws_cloudwatch_event_rule_name" {
   value = aws_cloudwatch_event_rule.s3_upload.name
 }
@@ -57,3 +57,4 @@ output "aws_cloudwatch_event_rule_arn" {
 output "aws_cloudwatch_event_rule_id" {
   value = aws_cloudwatch_event_rule.s3_upload.id
 }
+*/
