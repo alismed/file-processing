@@ -84,7 +84,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const action = "process.env.DESTROY_INFRA" === "true" ? "destruída" : "criada";
+            const action = "env.DESTROY_INFRA" === "true" ? "destruída" : "criada";
             const msg = [
               `Infra ${{ inputs.cluster_name }} foi ${action} com sucesso!`,
             ].join('\n');
