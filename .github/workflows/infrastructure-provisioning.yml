@@ -57,24 +57,27 @@ jobs:
             mv terraform /usr/local/bin/
           fi
           terraform version
-      
+
       - name: Get Destroy infra from tfvars
         run: |
           export DESTROY_INFRA=$(grep 'destroy_infra' infra/destroy.yml | cut -d':' -f2 | tr -d '[:space:]')
           echo "Destroy Infra: $DESTROY_INFRA"
           echo "DESTROY_INFRA=$DESTROY_INFRA" >> $GITHUB_ENV
 
-      - name: Terraform Operations
+      - name: Destroy infra if variable is set
+        if: ${{ env.DESTROY_INFRA == 'true' }}
+        run: |
+          figlet --horizontal-layout full "Infra will be destroyed"
+          cd infra
+          terraform init
+          terraform destroy -auto-approve
+
+      - name: Create Infra if destroy variable is not set
+        if: ${{ env.DESTROY_INFRA != 'true' }}
         run: |
           cd infra
           terraform init
-          echo "Destroy Infra: $DESTROY_INFRA"
-          if [ "process.env.DESTROY_INFRA" == "true" ]; then
-            figlet --horizontal-layout full "Infra will be destroyed"
-            terraform destroy -auto-approve
-          else
-            terraform apply -auto-approve || (figlet --horizontal-layout full "Error: Terraform Apply Failed" && exit 1)
-          fi
+          terraform apply -auto-approve || (figlet --horizontal-layout full "Error: Terraform Apply Failed" && exit 1)
 
       - name: Add comment to PR
         uses: actions/github-script@v7
