@@ -1,3 +1,4 @@
+/*
 resource "aws_cloudwatch_event_rule" "s3_upload" {
   name        = var.event_rule_name
   description = "Capture all S3 object uploads"
@@ -20,11 +21,4 @@ resource "aws_cloudwatch_event_target" "s3_upload_target" {
   target_id = var.event_target_id
   arn       = aws_lambda_function.file_processing.arn
 }
-
-resource "aws_lambda_permission" "allow_eventbridge" {
-  statement_id  = "AllowEventBridgeInvoke"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.file_processing.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.s3_upload.arn
-}
+*/
