@@ -18,6 +18,12 @@ The S3 bucket pre-built is used to store the terraform state file. The bucket na
 
 ```shell
 cd app/src
+go build
+go test
+```
+
+```shell
+cd app/src
 
 # Build
 GOOS=linux GOARCH=amd64 go build -o ../target/file-processing main.go
