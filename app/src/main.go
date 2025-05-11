@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"encoding/csv"
 	"encoding/json"
+	"io"
 	"log"
 	"os"
 
@@ -21,6 +21,34 @@ type Order struct {
 	Region      string
 	Name        string
 	Description string
+}
+
+func ProcessCSV(r io.Reader, putItemFunc func(Order) error) error {
+    csvReader := csv.NewReader(r)
+    csvReader.Comma = ';'
+    csvReader.FieldsPerRecord = -1
+
+    _, err := csvReader.Read() // descarta o cabeçalho
+    if err != nil {
+        return err
+    }
+
+    for {
+        record, err := csvReader.Read()
+        if err != nil {
+            break // EOF
+        }
+        order := Order{
+            Id:          record[0],
+            Region:      record[1],
+            Name:        record[2],
+            Description: record[3],
+        }
+        if err := putItemFunc(order); err != nil {
+            return err
+        }
+    }
+    return nil
 }
 
 type S3Event struct {
@@ -71,6 +99,32 @@ func handler(ctx context.Context, event json.RawMessage) (string, error) {
 	}
 	defer getObj.Body.Close()
 
+	putItemFunc := func(order Order) error {
+        item := map[string]ddbTypes.AttributeValue{
+            "Id":          &ddbTypes.AttributeValueMemberS{Value: order.Id},
+            "Region":      &ddbTypes.AttributeValueMemberS{Value: order.Region},
+            "Name":        &ddbTypes.AttributeValueMemberS{Value: order.Name},
+            "Description": &ddbTypes.AttributeValueMemberS{Value: order.Description},
+        }
+		log.Printf("Table name: %s", os.Getenv("DYNAMODB_TABLE"))
+        log.Printf("Item to insert: %s, %s, %s, %s", order.Id, order.Region, order.Name, order.Description)
+        _, err := ddbClient.PutItem(ctx, &dynamodb.PutItemInput{
+            TableName: aws.String(os.Getenv("DYNAMODB_TABLE")),
+            Item:      item,
+        })
+        if err != nil {
+            log.Printf("Failed to put item in DynamoDB: %v", err)
+        }
+        return err
+    }
+
+	err = ProcessCSV(getObj.Body, putItemFunc)
+    if err != nil {
+        log.Printf("Error processing CSV: %v", err)
+        return "", err
+    }
+	return "Processing completed", nil
+	/*
 	r := csv.NewReader(bufio.NewReader(getObj.Body))
 	r.Comma = ';'
 	r.FieldsPerRecord = -1
@@ -111,6 +165,7 @@ func handler(ctx context.Context, event json.RawMessage) (string, error) {
 		}
 	}
 	return "Processamento concluído", nil
+	*/
 }
 
 func main() {
