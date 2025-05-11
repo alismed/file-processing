@@ -55,6 +55,12 @@ resource "aws_lambda_function" "file_processing" {
   runtime          = "provided.al2"
   source_code_hash = data.archive_file.lambda_app.output_base64sha256
 
+  environment {
+    variables = {
+      DYNAMODB_TABLE = var.table_name
+    }
+  }
+  
   depends_on = [
     aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role,
     data.archive_file.lambda_app,
