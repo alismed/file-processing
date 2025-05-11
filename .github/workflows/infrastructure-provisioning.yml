@@ -16,6 +16,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Run Go unit tests
+        run: |
+          cd app/src
+          go test -v
+
       - name: Install dependencies
         run: |
           npm install -g figlet-cli
@@ -84,7 +89,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const action = "process.env.DESTROY_INFRA" === "true" ? "destruída" : "criada";
+            const action = "env.DESTROY_INFRA" === "true" ? "destruída" : "criada";
             const msg = [
               `Infra ${{ inputs.cluster_name }} foi ${action} com sucesso!`,
             ].join('\n');
