@@ -133,7 +133,7 @@ EOF
 act -l
 
 # Run workflow with pull request event
-act pull_request -e .act/pull_request.json
+act pull_request -e .act/pull_request.json --secret-file .act/.env
 
 # Run specific workflow
 act -W .github/workflows/main.yaml \
