@@ -44,19 +44,36 @@ variable "ttl_attribute" {
   type        = string
   default     = "ttl"
 }
-
+/*
 variable "gsi_config" {
-  description = "Configuration for global secondary indexes"
+  description = "Configuration for Global Secondary Indexes"
   type = map(object({
     hash_key           = string
+    range_key          = string
     write_capacity     = number
     read_capacity      = number
     projection_type    = string
-    non_key_attributes = list(string)
+    non_key_attributes = optional(list(string))
   }))
-  default = {}
+  default = {
+    RegionIndex = {
+      hash_key           = "Region"
+      range_key          = "Name"
+      write_capacity     = 1
+      read_capacity      = 1
+      projection_type    = "INCLUDE"
+      non_key_attributes = ["Id"]
+    }
+    DescriptionIndex = {
+      hash_key        = "Description"
+      range_key       = "Id"
+      write_capacity  = 1
+      read_capacity   = 1
+      projection_type = "ALL"
+    }
+  }
 }
-
+*/
 variable "function_name" {
   description = "The name of the Lambda function"
   type        = string
