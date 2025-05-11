@@ -68,8 +68,8 @@ jobs:
         run: |
           cd infra
           terraform init
-          echo "destroy_infra: ${{ inputs.destroy_infra }}"
-          if [ "${{ inputs.destroy_infra }}" == "true" ]; then
+          echo "Destroy Infra: $DESTROY_INFRA"
+          if [ "process.env.DESTROY_INFRA" == "true" ]; then
             figlet --horizontal-layout full "Infra will be destroyed"
             terraform destroy -auto-approve
           else
@@ -81,7 +81,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const action = "${{ DESTROY_INFRA }}" === "true" ? "destruída" : "criada";
+            const action = "process.env.DESTROY_INFRA" === "true" ? "destruída" : "criada";
             const msg = [
               `Infra ${{ inputs.cluster_name }} foi ${action} com sucesso!`,
             ].join('\n');
