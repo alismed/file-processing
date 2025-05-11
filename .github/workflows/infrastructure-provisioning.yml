@@ -60,7 +60,7 @@ jobs:
       
       - name: Get Destroy infra from tfvars
         run: |
-          export DESTROY_INFRA=$(grep 'destroy_infra' infra/destroy.yaml | cut -d':' -f2 | tr -d '[:space:]')
+          export DESTROY_INFRA=$(grep 'destroy_infra' infra/destroy.yml | cut -d':' -f2 | tr -d '[:space:]')
           echo "Destroy Infra: $DESTROY_INFRA"
           echo "DESTROY_INFRA=$DESTROY_INFRA" >> $GITHUB_ENV
 
